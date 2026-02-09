@@ -10,6 +10,7 @@ tap.test("POST /tasks", async (t) => {
     completed: false,
   };
   const response = await server.post("/tasks").send(newTask);
+  console.log("response from post valid data =====", response.status);
   t.equal(response.status, 201);
   t.end();
 });
@@ -19,6 +20,7 @@ tap.test("POST /tasks with invalid data", async (t) => {
     title: "New Task",
   };
   const response = await server.post("/tasks").send(newTask);
+  console.log("response from post invalid data =====", response.status);
   t.equal(response.status, 400);
   t.end();
 });
