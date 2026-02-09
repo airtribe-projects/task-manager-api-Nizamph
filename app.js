@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 4000;
+const port = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,7 +31,7 @@ app.use("/tasks/:id?", (req, res, next) => {
     }
   }
   console.log("id from middleware=====", req.params);
-  if (req.params.id) {
+  if (typeof req.params.id === "number") {
     const taskId = parseInt(req.params.id);
     const task = tasks.find((task) => task.id === taskId);
 
@@ -43,7 +43,8 @@ app.use("/tasks/:id?", (req, res, next) => {
 });
 app.get("/tasks", (req, res) => {
   console.log("tasks=====", tasks);
-  res.status(200).json(tasks);
+  const sortedTasks = tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
+  res.status(200).json(sortedTasks);
 });
 
 app.get("/tasks/:id", (req, res) => {
@@ -52,9 +53,24 @@ app.get("/tasks/:id", (req, res) => {
   res.status(200).json(task);
 });
 
+app.get("/tasks/completed/:completed", (req, res) => {
+  const completed = req.params.completed === "true";
+  const filteredTasks = tasks.filter(
+    (task) => task.completed.toString() === completed.toString(),
+  );
+  res.status(200).json(filteredTasks);
+});
+
+app.get("/tasks/priority/:level", (req, res) => {
+  const level = req.params.level;
+  const priorityTasks = tasks.filter((task) => task.priority === level);
+  res.status(200).json(priorityTasks);
+});
+
 app.post("/tasks", (req, res) => {
   const newTask = {
     id: tasks.length + 1,
+    date: new Date().toISOString(),
     title: req.body.title,
     description: req.body.description,
     completed: req.body.completed,
